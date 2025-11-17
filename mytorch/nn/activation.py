@@ -19,37 +19,35 @@ class Softmax:
         """
         if self.dim > len(Z.shape) or self.dim < -len(Z.shape):
             raise ValueError("Dimension to apply softmax to is greater than the number of dimensions in Z")
-        
-        # TODO: Implement forward pass
-        # Compute the softmax in a numerically stable way
-        # Apply it to the dimension specified by the `dim` parameter
-        self.A = NotImplementedError
-        raise NotImplementedError
+
+        # Numerically stable softmax: subtract max for stability
+        Z_max = np.max(Z, axis=self.dim, keepdims=True)
+        Z_stable = Z - Z_max
+
+        # Compute exponentials
+        exp_Z = np.exp(Z_stable)
+
+        # Compute softmax: exp(Z) / sum(exp(Z)) along specified dimension
+        sum_exp_Z = np.sum(exp_Z, axis=self.dim, keepdims=True)
+        self.A = exp_Z / sum_exp_Z
+
+        return self.A
 
     def backward(self, dLdA):
         """
         :param dLdA: Gradient of loss wrt output
         :return: Gradient of loss with respect to activation input
         """
-        # TODO: Implement backward pass
-        
-        # Get the shape of the input
-        shape = self.A.shape
-        # Find the dimension along which softmax was applied
-        C = shape[self.dim]
-           
-        # Reshape input to 2D
-        if len(shape) > 2:
-            self.A = NotImplementedError
-            dLdA = NotImplementedError
+        # For softmax: dL/dZ_i = A_i * (dL/dA_i - sum_j(A_j * dL/dA_j))
+        # This is the Jacobian of softmax applied efficiently
 
-        # Reshape back to original dimensions if necessary
-        if len(shape) > 2:
-            # Restore shapes to original
-            self.A = NotImplementedError
-            dLdZ = NotImplementedError
+        # Compute sum of A_j * dL/dA_j along the softmax dimension
+        sum_term = np.sum(self.A * dLdA, axis=self.dim, keepdims=True)
 
-        raise NotImplementedError
+        # Apply the softmax gradient formula
+        dLdZ = self.A * (dLdA - sum_term)
+
+        return dLdZ
  
 
     

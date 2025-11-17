@@ -24,28 +24,46 @@ class Linear:
         """
         :param A: Input to the linear layer with shape (*, in_features)
         :return: Output Z with shape (*, out_features)
-        
+
         Handles arbitrary batch dimensions like PyTorch
         """
-        # TODO: Implement forward pass
-        
         # Store input for backward pass
         self.A = A
-        
-        raise NotImplementedError
+
+        # Store original shape for reshape back
+        self.original_shape = A.shape
+
+        # Reshape to 2D: (*, in_features) -> (batch_size, in_features)
+        A_2d = A.reshape(-1, A.shape[-1])
+
+        # Apply linear transformation: Z = A @ W.T + b
+        Z_2d = A_2d @ self.W.T + self.b
+
+        # Reshape back to original batch dimensions: (batch_size, out_features) -> (*, out_features)
+        Z = Z_2d.reshape(*self.original_shape[:-1], self.W.shape[0])
+
+        return Z
 
     def backward(self, dLdZ):
         """
         :param dLdZ: Gradient of loss wrt output Z (*, out_features)
         :return: Gradient of loss wrt input A (*, in_features)
         """
-        # TODO: Implement backward pass
+        # Reshape gradients to 2D for computation
+        dLdZ_2d = dLdZ.reshape(-1, dLdZ.shape[-1])
+        A_2d = self.A.reshape(-1, self.A.shape[-1])
 
-        # Compute gradients (refer to the equations in the writeup)
-        self.dLdA = NotImplementedError
-        self.dLdW = NotImplementedError
-        self.dLdb = NotImplementedError
-        self.dLdA = NotImplementedError
-        
-        # Return gradient of loss wrt input
-        raise NotImplementedError
+        # Compute gradients
+        # dL/dA = dL/dZ @ W
+        dLdA_2d = dLdZ_2d @ self.W
+
+        # dL/dW = dL/dZ.T @ A
+        self.dLdW = dLdZ_2d.T @ A_2d
+
+        # dL/db = sum over batch dimension of dL/dZ
+        self.dLdb = np.sum(dLdZ_2d, axis=0)
+
+        # Reshape gradient back to original input shape
+        self.dLdA = dLdA_2d.reshape(self.original_shape)
+
+        return self.dLdA
