@@ -106,50 +106,59 @@ class CrossAttentionLayer(nn.Module):
     '''     
     def __init__(self, d_model: int, num_heads: int, dropout: float = 0.0):
         '''
-        Initialize the CrossAttentionLayer. 
+        Initialize the CrossAttentionLayer.
         Args:
             d_model   (int): The dimension of the model.
             num_heads (int): The number of attention heads.
             dropout (float): The dropout rate.
         '''
         super().__init__()
-        # TODO: Implement __init__
-        
-        # TODO: Initialize the multi-head attention mechanism (use nn.MultiheadAttention)
-        self.mha = NotImplementedError
-        
-        # TODO: Initialize the normalization layer (use nn.LayerNorm)
-        self.norm = NotImplementedError
-        
-        # TODO: Initialize the dropout layer
-        self.dropout = NotImplementedError
-        
-        raise NotImplementedError # Remove once implemented
+        # Initialize the multi-head attention mechanism (use nn.MultiheadAttention)
+        self.mha = nn.MultiheadAttention(d_model, num_heads, dropout=dropout, batch_first=True)
+
+        # Initialize the normalization layer (use nn.LayerNorm)
+        self.norm = nn.LayerNorm(d_model)
+
+        # Initialize the dropout layer
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor, y: torch.Tensor, key_padding_mask: Optional[torch.Tensor] = None, attn_mask: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, torch.Tensor]:
         '''
         Forward pass for the CrossAttentionLayer.
         Args:
-            x (torch.Tensor): The input tensor from decoder. shape: (batch_size, seq_len, d_model)   
+            x (torch.Tensor): The input tensor from decoder. shape: (batch_size, seq_len, d_model)
             y (torch.Tensor): The input tensor from encoder. shape: (batch_size, seq_len, d_model)
             key_padding_mask (Optional[torch.Tensor]): The padding mask for the key input. shape: (batch_size, seq_len)
             attn_mask (Optional[torch.Tensor]): The attention mask. shape: (seq_len, seq_len)
 
         Returns:
             x (torch.Tensor): The output tensor. shape: (batch_size, seq_len, d_model)
-            mha_attn_weights (torch.Tensor): The attention weights. shape: (batch_size, seq_len, seq_len)   
+            mha_attn_weights (torch.Tensor): The attention weights. shape: (batch_size, seq_len, seq_len)
         '''
-        # TODO: Implement forward: Follow the figure in the writeup
+        # Store residual connection
+        residual = x
 
-        # TODO: Cross-attention
-        # Be sure to use the correct arguments for the multi-head attention layer
-        # Set need_weights to True and average_attn_weights to True so we can get the attention weights 
-        x, mha_attn_weights = NotImplementedError, NotImplementedError
-        
-        # NOTE: For some regularization you can apply dropout and then add residual connection
-        
-        # TODO: Return the output tensor and attention weights
-        raise NotImplementedError # Remove once implemented
+        # Apply pre-normalization to decoder input
+        x = self.norm(x)
+
+        # Cross-attention
+        # Query from decoder (x), key and value from encoder (y)
+        # Set need_weights to True and average_attn_weights to True so we can get the attention weights
+        attn_output, mha_attn_weights = self.mha(
+            query=x,
+            key=y,
+            value=y,
+            key_padding_mask=key_padding_mask,
+            attn_mask=attn_mask,
+            need_weights=True,
+            average_attn_weights=True
+        )
+
+        # Apply dropout and residual connection
+        x = residual + self.dropout(attn_output)
+
+        # Return the output tensor and attention weights
+        return x, mha_attn_weights
     
 ## -------------------------------------------------------------------------------------------------  
 class FeedForwardLayer(nn.Module):

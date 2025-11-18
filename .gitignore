@@ -8,3 +8,6 @@ venv/
 ENV/
 CLAUDE.md
 previous
+logs.log
+tasks.txt
+.claude

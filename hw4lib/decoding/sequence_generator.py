@@ -227,8 +227,122 @@ class SequenceGenerator:
         if self.max_length < x.size(1):
             raise ValueError("max_length must be >= input sequence length")
         
-        # TODO: Implement beam search
-        raise NotImplementedError # Remove once implemented
+        # Initialize beam search
+        batch_size, seq_len = x.size()
+        vocab_size = self.tokenizer.vocab_size
+
+        # For beam search, we need to handle the initial expansion differently
+        # Start with input sequences and expand step by step
+        current_seqs = x  # (batch_size, seq_len)
+        current_beam_scores = torch.zeros(batch_size, device=self.device)  # Initialize here
+
+        # Generate tokens until max_length
+        for step in range(self.max_length - seq_len):
+            # Collect candidates for this step
+            all_candidates = []
+            all_scores = []
+
+            # If this is the first step, start from single input sequence per batch
+            if step == 0:
+                sequences_to_expand = current_seqs  # (batch_size, seq_len)
+                scores_to_use = current_beam_scores  # (batch_size,)
+            else:
+                # Subsequent steps: expand all current beams
+                sequences_to_expand = current_seqs.view(-1, current_seqs.size(-1))  # (batch_size * beam_width, seq_len)
+                scores_to_use = current_beam_scores.view(-1)  # (batch_size * beam_width,)
+
+            for seq_idx in range(sequences_to_expand.size(0)):
+                seq = sequences_to_expand[seq_idx:seq_idx+1]  # (1, seq_len)
+                base_score = scores_to_use[seq_idx] if step > 0 else 0.0
+
+                # Get next token probabilities
+                logits = self.score_fn(seq).squeeze(0)  # (vocab_size,)
+
+                # Apply repeat penalty and temperature
+                if repeat_penalty != 1.0:
+                    logits = self._apply_repeat_penalty(logits.unsqueeze(0), seq, repeat_penalty).squeeze(0)
+
+                if temperature != 1.0:
+                    logits = logits / temperature
+
+                log_probs = torch.log_softmax(logits, dim=-1)
+
+                # Get top-k candidates for this sequence
+                top_k = beam_width if step == 0 else beam_width  # Allow beam_width candidates
+                top_logprobs, top_tokens = torch.topk(log_probs, top_k)
+
+                # Create candidates
+                for k in range(top_k):
+                    new_seq = torch.cat([seq.squeeze(0), top_tokens[k:k+1]], dim=0)
+                    new_score = base_score + top_logprobs[k].item()
+                    all_candidates.append(new_seq)
+                    all_scores.append(new_score)
+
+            # Process candidates for each batch separately
+            if step == 0:
+                # First step: select top beam_width from single sequence expansion per batch
+                new_seq_len = x.size(-1) + 1
+                current_seqs = torch.zeros(batch_size, beam_width, new_seq_len, device=self.device, dtype=torch.long)
+                current_beam_scores = torch.zeros(batch_size, beam_width, device=self.device)
+
+                # For step 0, we have one candidate set per batch item
+                candidates_per_batch = beam_width  # We generated beam_width candidates from each input sequence
+
+                for batch_idx in range(batch_size):
+                    start_idx = batch_idx * candidates_per_batch
+                    end_idx = start_idx + candidates_per_batch
+                    batch_candidates = all_candidates[start_idx:end_idx]
+                    batch_scores = all_scores[start_idx:end_idx]
+
+                    # Select top beam_width for this batch
+                    sorted_pairs = sorted(zip(batch_scores, batch_candidates), key=lambda x: x[0], reverse=True)
+                    selected_pairs = sorted_pairs[:beam_width]
+
+                    for beam_idx in range(beam_width):
+                        if beam_idx < len(selected_pairs):
+                            score, seq = selected_pairs[beam_idx]
+                            current_seqs[batch_idx, beam_idx] = seq
+                            current_beam_scores[batch_idx, beam_idx] = score
+            else:
+                # Subsequent steps: handle beam expansion
+                candidates_per_batch = beam_width * beam_width  # Each beam generates beam_width candidates
+                new_seq_len = current_seqs.size(-1) + 1
+                new_seqs = torch.zeros(batch_size, beam_width, new_seq_len, device=self.device, dtype=torch.long)
+                new_scores = torch.zeros(batch_size, beam_width, device=self.device)
+
+                for batch_idx in range(batch_size):
+                    start_idx = batch_idx * candidates_per_batch
+                    end_idx = start_idx + candidates_per_batch
+                    batch_candidates = all_candidates[start_idx:end_idx]
+                    batch_scores = all_scores[start_idx:end_idx]
+
+                    # Select top beam_width for this batch
+                    sorted_pairs = sorted(zip(batch_scores, batch_candidates), key=lambda x: x[0], reverse=True)
+                    selected_pairs = sorted_pairs[:beam_width]
+
+                    for beam_idx in range(beam_width):
+                        if beam_idx < len(selected_pairs):
+                            score, seq = selected_pairs[beam_idx]
+                            new_seqs[batch_idx, beam_idx] = seq
+                            new_scores[batch_idx, beam_idx] = score
+
+                current_seqs = new_seqs
+                current_beam_scores = new_scores
+
+            # Check for early termination
+            if current_seqs.size(-1) >= self.max_length:
+                break
+
+            # Check if all sequences end with EOS
+            last_tokens = current_seqs[:, :, -1]
+            if torch.all(last_tokens == self.tokenizer.eos_id):
+                break
+
+        # Return final beams and scores
+        beams = current_seqs
+        beam_scores = current_beam_scores
+
+        return beams, beam_scores
 
     def generate_sample(
             self,
