@@ -170,7 +170,9 @@ class BaseTrainer(ABC):
                 # Write the summary string to file
                 f.write(str(model_summary))
             else:
-                raise NotImplementedError("Model architecture summary not implemented")
+                # Simple summary for other models
+                f.write(f"Model: {self.model.__class__.__name__}\n")
+                f.write(f"Total parameters: {sum(p.numel() for p in self.model.parameters()):,}\n")
 
         # Create subdirectories
         checkpoint_dir = expt_root / 'checkpoints'
