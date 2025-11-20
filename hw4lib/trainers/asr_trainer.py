@@ -3,12 +3,8 @@ from typing import Dict, Any, Optional, List, Tuple, Union
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-import torch.nn.functional as F
 from ..decoding.sequence_generator import SequenceGenerator
-from ..utils import create_scheduler, create_optimizer
 from ..model import DecoderOnlyTransformer
-import torchaudio.functional as aF
-import json
 import torchmetrics.text as tmt
 from torch.utils.data import Subset
 import pandas as pd
@@ -218,8 +214,16 @@ class ASRTrainer(BaseTrainer):
         """
         # In-fill the _validate_epoch method - implemented
 
-        # Call recognize
-        results = self.recognize(dataloader)
+        # Use beam search for validation for more accurate metrics
+        validation_config = {
+            'num_batches': None,  # Process all batches
+            'beam_width': 5,      # Use beam search with width 5 for validation
+            'temperature': 1.0,
+            'repeat_penalty': 1.1
+        }
+
+        # Call recognize with beam search config
+        results = self.recognize(dataloader, validation_config)
 
         # Extract references and hypotheses from results
         references = [result['reference'] for result in results]
@@ -710,7 +714,7 @@ class ProgressiveTrainer(ASRTrainer):
         print("="*80)
         
         # Print key configuration details
-        print(f"\nConfiguration Details:")
+        print("\nConfiguration Details:")
         print(f"├── Data Subset: {stage_config['data_subset']*100:.1f}% of training data")
         print(f"├── Training Epochs: {stage_config['epochs']}")
         print(f"├── Dropout: {stage_config['dropout']}")
