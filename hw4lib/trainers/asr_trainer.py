@@ -214,15 +214,16 @@ class ASRTrainer(BaseTrainer):
         """
         # In-fill the _validate_epoch method - implemented
 
-        # Use beam search for validation for more accurate metrics
+        # Use greedy search for faster validation
+        # Note: For final evaluation, use beam search with width 10-15
         validation_config = {
             'num_batches': None,  # Process all batches
-            'beam_width': 5,      # Use beam search with width 5 for validation
+            'beam_width': 1,      # Greedy search for speed
             'temperature': 1.0,
-            'repeat_penalty': 1.1
+            'repeat_penalty': 1.0
         }
 
-        # Call recognize with beam search config
+        # Call recognize with greedy config for speed
         results = self.recognize(dataloader, validation_config)
 
         # Extract references and hypotheses from results
