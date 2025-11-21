@@ -95,18 +95,28 @@ def train_model_variant(config_path: str, epochs: int = 25, experiment_name: str
     # Create trainer
     trainer = ASRTrainer(
         model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
+        tokenizer=tokenizer,
         config=config,
+        run_name=experiment_name or config['Name'],
         config_file=config_path,
         device='cuda' if torch.cuda.is_available() else 'cpu'
     )
 
+    # Set optimizer and scheduler
+    from hw4lib.utils import create_optimizer, create_scheduler
+    trainer.optimizer = create_optimizer(model=model, opt_config=config['optimizer'])
+    trainer.scheduler = create_scheduler(
+        optimizer=trainer.optimizer,
+        scheduler_config=config['scheduler'],
+        train_loader=train_loader,
+        gradient_accumulation_steps=config['training']['gradient_accumulation_steps']
+    )
+
     # Train
-    trainer.train(epochs)
+    trainer.train(train_loader, val_loader, epochs)
 
     # Return wandb run ID
-    return trainer.wandb_run.id if trainer.use_wandb else None
+    return trainer.wandb_run.id if (trainer.use_wandb and trainer.wandb_run) else None
 
 
 def train_multiple_variants(
