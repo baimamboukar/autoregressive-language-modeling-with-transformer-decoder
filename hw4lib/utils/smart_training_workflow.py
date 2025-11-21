@@ -53,7 +53,7 @@ def train_model_variant(config_path: str, epochs: int = 25, experiment_name: str
     # Get global stats from training dataset for validation
     global_stats = None
     if config['data'].get('norm') == 'global_mvn':
-        global_stats = (train_dataset.mean, train_dataset.std)
+        global_stats = (train_dataset.global_mean, train_dataset.global_std)
 
     val_dataset = ASRDataset(
         partition=config['data']['val_partition'],

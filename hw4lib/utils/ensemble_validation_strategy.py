@@ -447,12 +447,26 @@ def validate_ensemble_pipeline(run_ids: List[str]) -> Dict:
     token_map = config['tokenization']['token_map']
     tokenizer = H4Tokenizer(token_map, token_type)
 
+    # Create training dataset first to get global stats if needed
+    train_dataset = ASRDataset(
+        partition=config['data']['train_partition'],
+        config=config['data'],
+        tokenizer=tokenizer,
+        isTrainPartition=True,
+        global_stats=None
+    )
+
+    # Get global stats for validation if using global_mvn
+    global_stats = None
+    if config['data'].get('norm') == 'global_mvn':
+        global_stats = (train_dataset.global_mean, train_dataset.global_std)
+
     val_dataset = ASRDataset(
         partition=config['data']['val_partition'],
         config=config['data'],
         tokenizer=tokenizer,
         isTrainPartition=False,
-        global_stats=None
+        global_stats=global_stats
     )
 
     val_loader = DataLoader(
