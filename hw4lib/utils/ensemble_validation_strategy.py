@@ -448,10 +448,11 @@ def validate_ensemble_pipeline(run_ids: List[str]) -> Dict:
     tokenizer = H4Tokenizer(token_map, token_type)
 
     val_dataset = ASRDataset(
-        data_dir=config['data']['root'],
         partition=config['data']['val_partition'],
+        config=config['data'],
         tokenizer=tokenizer,
-        config=config
+        isTrainPartition=False,
+        global_stats=None
     )
 
     val_loader = DataLoader(
