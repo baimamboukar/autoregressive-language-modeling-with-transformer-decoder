@@ -534,7 +534,7 @@ model = EncoderDecoderTransformer(**model_config)
 # Get some inputs from the train dataloader
 for batch in train_loader:
     padded_feats, padded_shifted, padded_golden, feat_lengths, transcript_lengths = batch
-    break
+    breakW
 
 total_param = sum(p.numel() for p in model.parameters() if p.requires_grad)
 assert total_param < 30_000_000, f"Total trainable parameters ({total_param}) exceeds 30 million."
@@ -753,6 +753,101 @@ print(f"Generated {len(generated)} transcriptions")
 
 # Cleanup (Will end wandb run)
 trainer.cleanup()
+
+"""## Advanced Optimization Tools
+
+Import all the optimization tools we've created for achieving CER < 6%.
+"""
+
+# Import optimization tools
+from hw4lib.utils import (
+    ensemble_from_wandb, resume_from_wandb, resume_and_continue_training,
+    train_model_variant, train_multiple_variants, finetune_best_models,
+    tune_beam_search_params, quick_beam_search_sweep,
+    create_weight_averaged_model, smart_weight_averaging,
+    EnsembleValidator, validate_ensemble_pipeline
+)
+
+# Quick functions for notebook use
+
+def quick_train_variant(config_name, epochs=25):
+    """Train a single model variant quickly."""
+    config_path = f"config_{config_name}.yaml"
+    if not os.path.exists(config_path):
+        config_path = f"optimization_configs/config_{config_name}.yaml"
+
+    return train_model_variant(config_path, epochs)
+
+def create_ensemble_from_runs(run_ids, beam_width=15):
+    """Create an ensemble from wandb run IDs."""
+    return ensemble_from_wandb(run_ids, beam_width=beam_width)
+
+def resume_training_from_wandb(run_id, additional_epochs=10):
+    """Resume training from a wandb run."""
+    return resume_and_continue_training(
+        run_id, train_loader, val_loader,
+        additional_epochs, {'optimizer.lr': 0.0005}
+    )
+
+def quick_ensemble_validation(run_ids, target_cer=0.06):
+    """Quick validation of ensemble performance."""
+    validator = EnsembleValidator(Tokenizer)
+    ensemble = ensemble_from_wandb(run_ids)
+
+    # Quick eval on small subset
+    results = validator.validate_single_model(
+        ensemble, val_loader,
+        beam_params={'beam_width': 15, 'temperature': 0.9},
+        max_batches=10
+    )
+
+    print(f"Ensemble CER: {results.cer:.4f}")
+    print(f"Target {'ACHIEVED' if results.cer <= target_cer else 'NOT ACHIEVED'}")
+    return results.cer
+
+def train_all_variants_parallel():
+    """Instructions for training all variants in parallel."""
+    configs = [
+        "config_variant_1_balanced.yaml",
+        "config_variant_2_wider.yaml",
+        "config_variant_3_deeper.yaml",
+        "config_variant_4_less_reduction.yaml",
+        "config_variant_5_small_vocab.yaml"
+    ]
+
+    print("Train these configs in parallel (different Colab sessions/GPUs):")
+    for i, config in enumerate(configs):
+        print(f"GPU {i}: train_model_variant('{config}', epochs=25)")
+
+    return configs
+
+# Example usage cells
+
+"""
+# Cell 1: Train a single lightweight model
+run_id_1 = quick_train_variant("lightweight_fast", epochs=20)
+
+# Cell 2: Train multiple variants
+run_ids = []
+for variant in ["variant_1_balanced", "variant_2_wider", "variant_3_deeper"]:
+    run_id = quick_train_variant(variant, epochs=25)
+    run_ids.append(run_id)
+
+# Cell 3: Create ensemble
+ensemble = create_ensemble_from_runs(run_ids, beam_width=15)
+
+# Cell 4: Resume training with lower LR
+finetuned_id = resume_training_from_wandb(run_ids[0], additional_epochs=10)
+
+# Cell 5: Validate ensemble
+cer = quick_ensemble_validation(run_ids, target_cer=0.06)
+
+# Cell 6: Weight averaging ensemble
+weight_avg_model, metadata = create_weight_averaged_model(run_ids)
+
+# Cell 7: Tune beam search
+best_params = quick_beam_search_sweep(run_ids, fast_mode=True)
+"""
 
 """## Submit to Kaggle
 

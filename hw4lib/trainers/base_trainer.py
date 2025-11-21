@@ -205,6 +205,10 @@ class BaseTrainer(ABC):
                     name=run_name
                 )
 
+            # Save config.yaml and model_arch.txt to wandb
+            wandb.save(str(expt_root / "config.yaml"))
+            wandb.save(str(expt_root / "model_arch.txt"))
+
         return expt_root, checkpoint_dir, attn_dir, text_dir, best_model_path, last_model_path
 
     def _log_metrics(self, metrics: Dict[str, Dict[str, float]], step: int):

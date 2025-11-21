@@ -1,0 +1,80 @@
+Name: quick_wins_10m
+beam_search:
+  configs:
+    beam_5:
+      beam_width: 5
+      length_penalty: 0.8
+      repeat_penalty: 1.1
+      temperature: 1.0
+data:
+  NUM_WORKERS: 4
+  batch_size: 48
+  norm: global_mvn
+  num_feats: 80
+  root: /content/hw4_data/hw4p2_data
+  specaug: true
+  specaug_conf:
+    apply_freq_mask: true
+    apply_time_mask: true
+    freq_mask_width_range: 8
+    num_freq_mask: 2
+    num_time_mask: 2
+    time_mask_width_range: 40
+  subset: 0.7
+  test_partition: test-clean
+  train_partition: train-clean-100
+  val_partition: dev-clean
+loss:
+  ctc_weight: 0.3
+  label_smoothing: 0.1
+model:
+  d_ff_decoder: 896
+  d_ff_encoder: 896
+  d_model: 224
+  dropout: 0.1
+  input_dim: 80
+  layer_drop_rate: 0.0
+  num_decoder_heads: 8
+  num_decoder_layers: 3
+  num_encoder_heads: 8
+  num_encoder_layers: 3
+  reduction_method: conv
+  skip_decoder_pe: false
+  skip_encoder_pe: false
+  time_reduction: 8
+  weight_tying: true
+optimizer:
+  adamw:
+    amsgrad: false
+    betas:
+    - 0.9
+    - 0.999
+    eps: 1.0e-06
+  lr: 0.005
+  name: adamw
+  weight_decay: 0.005
+scheduler:
+  cosine:
+    T_max: 8
+    eta_min: 0.0001
+    last_epoch: -1
+  name: cosine
+  warmup:
+    enabled: true
+    end_factor: 1.0
+    epochs: 1
+    start_factor: 0.2
+    type: exponential
+tokenization:
+  token_map:
+    10k: hw4lib/data/tokenizer_jsons/tokenizer_10000.json
+    1k: hw4lib/data/tokenizer_jsons/tokenizer_1000.json
+    5k: hw4lib/data/tokenizer_jsons/tokenizer_5000.json
+    char: hw4lib/data/tokenizer_jsons/tokenizer_char.json
+  token_type: 1k
+training:
+  gradient_accumulation_steps: 1
+  resume: true
+  use_wandb: true
+  wandb_project: HW4P2
+  wandb_run_id: none
