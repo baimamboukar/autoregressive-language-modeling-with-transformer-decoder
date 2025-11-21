@@ -50,12 +50,17 @@ def train_model_variant(config_path: str, epochs: int = 25, experiment_name: str
         global_stats=None
     )
 
+    # Get global stats from training dataset for validation
+    global_stats = None
+    if config['data'].get('norm') == 'global_mvn':
+        global_stats = (train_dataset.mean, train_dataset.std)
+
     val_dataset = ASRDataset(
         partition=config['data']['val_partition'],
         config=config['data'],
         tokenizer=tokenizer,
         isTrainPartition=False,
-        global_stats=None
+        global_stats=global_stats
     )
 
     # Create dataloaders
