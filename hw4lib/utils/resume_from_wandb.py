@@ -25,11 +25,11 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
     from hw4lib.model.transformers import EncoderDecoderTransformer
     from hw4lib.data.tokenizer import H4Tokenizer
 
-    print(f"\n=== Resuming from Wandb Run: {run_id} ===")
+    print(f"\nResuming from Wandb Run: {run_id}")
 
     # Initialize wandb API
     api = wandb.Api()
-    run = api.run(f"HW4P2/{run_id}")
+    run = api.run(f"idlf25/HW4P2/{run_id}")
 
     # Create checkpoint directory
     os.makedirs("checkpoints", exist_ok=True)
@@ -225,7 +225,7 @@ def resume_and_continue_training(
     # Calculate total epochs
     total_epochs = start_epoch + num_additional_epochs
 
-    print(f"\n=== Continuing Training ===")
+    print("\n=== Continuing Training ===")
     print(f"Training from epoch {start_epoch} to {total_epochs}")
 
     # Initialize new wandb run for continued training

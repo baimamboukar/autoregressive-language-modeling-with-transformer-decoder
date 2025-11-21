@@ -61,16 +61,17 @@ training:
   resume                      : True
   gradient_accumulation_steps : 1           # No accumulation for speed
   wandb_project               : "HW4P2"
+  max_grad_norm              : 1.0          # Gradient clipping for stability
 
 ###### Loss Configuration -------------------------------------------------------
 loss:
   label_smoothing: 0.1                      # Moderate label smoothing
-  ctc_weight: 0.3                           # Balanced CTC weight
+  ctc_weight: 0.2                           # Lower CTC weight for stability
 
 ###### Optimizer Configuration --------------------------------------------------
 optimizer:
   name: "adamw"
-  lr: 0.002                                 # Higher learning rate for faster training
+  lr: 0.0008                                # Stable learning rate
   weight_decay: 0.01                        # Moderate weight decay
 
   # AdamW specific parameters
