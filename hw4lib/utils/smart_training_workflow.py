@@ -38,8 +38,8 @@ def train_model_variant(config_path: str, epochs: int = 25, experiment_name: str
 
     # Create tokenizer
     token_type = config['tokenization']['token_type']
-    tokenizer_path = config['tokenization']['token_map'][token_type]
-    tokenizer = H4Tokenizer(tokenizer_path)
+    token_map = config['tokenization']['token_map']
+    tokenizer = H4Tokenizer(token_map, token_type)
 
     # Create datasets
     train_dataset = ASRDataset(

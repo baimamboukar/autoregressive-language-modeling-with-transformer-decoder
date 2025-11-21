@@ -89,8 +89,8 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
 
         # Create tokenizer
         token_type = config['tokenization']['token_type']
-        tokenizer_path = config['tokenization']['token_map'][token_type]
-        tokenizer = H4Tokenizer(tokenizer_path)
+        token_map = config['tokenization']['token_map']
+        tokenizer = H4Tokenizer(token_map, token_type)
         print(f"Tokenizer loaded: {token_type} ({tokenizer.get_vocab_size()} tokens)")
 
         # Create model

@@ -70,8 +70,8 @@ def create_weight_averaged_model(
 
             # Create tokenizer
             token_type = config['tokenization']['token_type']
-            tokenizer_path = config['tokenization']['token_map'][token_type]
-            tokenizer = H4Tokenizer(tokenizer_path)
+            token_map = config['tokenization']['token_map']
+            tokenizer = H4Tokenizer(token_map, token_type)
 
             # Create model
             model_config = config['model'].copy()

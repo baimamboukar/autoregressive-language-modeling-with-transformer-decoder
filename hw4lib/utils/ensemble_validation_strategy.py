@@ -443,7 +443,9 @@ def validate_ensemble_pipeline(run_ids: List[str]) -> Dict:
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
 
-    tokenizer = H4Tokenizer(config['tokenization']['token_map']['5k'])
+    token_type = config['tokenization']['token_type']
+    token_map = config['tokenization']['token_map']
+    tokenizer = H4Tokenizer(token_map, token_type)
 
     val_dataset = ASRDataset(
         data_dir=config['data']['root'],
