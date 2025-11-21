@@ -82,7 +82,7 @@ def train_model_variant(config_path: str, epochs: int = 25, experiment_name: str
 
     # Create model
     model_config = config['model'].copy()
-    model_config['num_classes'] = tokenizer.get_vocab_size()
+    model_config['num_classes'] = tokenizer.vocab_size
     model_config['max_len'] = 1024
 
     model = EncoderDecoderTransformer(**model_config)

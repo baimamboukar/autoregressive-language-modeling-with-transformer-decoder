@@ -91,11 +91,11 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
         token_type = config['tokenization']['token_type']
         token_map = config['tokenization']['token_map']
         tokenizer = H4Tokenizer(token_map, token_type)
-        print(f"Tokenizer loaded: {token_type} ({tokenizer.get_vocab_size()} tokens)")
+        print(f"Tokenizer loaded: {token_type} ({tokenizer.vocab_size} tokens)")
 
         # Create model
         model_config = config['model'].copy()
-        model_config['num_classes'] = tokenizer.get_vocab_size()
+        model_config['num_classes'] = tokenizer.vocab_size
         model_config['max_len'] = 1024  # Default max length
 
         print(f"Creating model: d_model={model_config['d_model']}, "

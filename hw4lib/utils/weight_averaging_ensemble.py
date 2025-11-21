@@ -75,7 +75,7 @@ def create_weight_averaged_model(
 
             # Create model
             model_config = config['model'].copy()
-            model_config['num_classes'] = tokenizer.get_vocab_size()
+            model_config['num_classes'] = tokenizer.vocab_size
             model_config['max_len'] = 1024
 
             model = EncoderDecoderTransformer(**model_config)
