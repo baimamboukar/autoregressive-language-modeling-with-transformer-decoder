@@ -39,6 +39,12 @@ def train_model_variant(config_path: str, epochs: int = 25, experiment_name: str
     # Create tokenizer
     token_type = config['tokenization']['token_type']
     token_map = config['tokenization']['token_map']
+
+    # Debug prints
+    print(f"Debug - token_type: {token_type}, type: {type(token_type)}")
+    print(f"Debug - token_map type: {type(token_map)}")
+    print(f"Debug - token_map content: {token_map}")
+
     tokenizer = H4Tokenizer(token_map, token_type)
 
     # Create datasets
