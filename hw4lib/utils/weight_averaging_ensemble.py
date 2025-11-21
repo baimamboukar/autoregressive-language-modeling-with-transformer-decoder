@@ -88,7 +88,7 @@ def create_weight_averaged_model(
             print(f"✅ Loaded: {config['Name']} (epoch {checkpoint.get('epoch', '?')})")
 
     # Verify all models have the same architecture
-    print(f"\n🔍 Verifying model compatibility...")
+    print("\n🔍 Verifying model compatibility...")
     reference_state_dict = models[0].state_dict()
 
     for i, model in enumerate(models[1:], 1):
@@ -103,10 +103,10 @@ def create_weight_averaged_model(
             if reference_state_dict[key].shape != current_state_dict[key].shape:
                 raise ValueError(f"Model {i} has incompatible shape for {key}")
 
-    print(f"✅ All models are compatible for weight averaging")
+    print("✅ All models are compatible for weight averaging")
 
     # Create averaged state dict
-    print(f"\n🧮 Computing weighted average of parameters...")
+    print("\n🧮 Computing weighted average of parameters...")
     averaged_state_dict = OrderedDict()
 
     for key in reference_state_dict.keys():
@@ -119,7 +119,7 @@ def create_weight_averaged_model(
         averaged_state_dict[key] = averaged_param
 
     # Create new model with averaged weights
-    print(f"🏗️  Creating averaged model...")
+    print("🏗️  Creating averaged model...")
     averaged_model = EncoderDecoderTransformer(**model_config)
     averaged_model.load_state_dict(averaged_state_dict)
 
@@ -162,7 +162,7 @@ def create_weight_averaged_model(
         if wandb.run is not None:
             wandb.save(averaged_model_path)
             wandb.save(metadata_path)
-            print(f"☁️  Uploaded to wandb")
+            print("☁️  Uploaded to wandb")
 
     return averaged_model, metadata
 
@@ -192,7 +192,7 @@ def smart_weight_averaging(
         weights = None  # Will be set to equal in create_weight_averaged_model
 
     elif weighting_strategy == 'performance':
-        print(f"📈 Evaluating individual model performances...")
+        print("📈 Evaluating individual model performances...")
 
         performances = []
         for run_id in run_ids:
@@ -309,12 +309,12 @@ def compare_ensemble_methods(
     """
     Compare different ensemble methods: output averaging vs weight averaging.
     """
-    print(f"🔬 Comparing ensemble methods...")
+    print("🔬 Comparing ensemble methods...")
 
     results = {}
 
     # 1. Output averaging (your original ensemble)
-    print(f"\n📊 Testing output averaging ensemble...")
+    print("\n📊 Testing output averaging ensemble...")
     from ensemble_asr import ensemble_from_wandb
 
     output_ensemble = ensemble_from_wandb(run_ids)
@@ -323,7 +323,7 @@ def compare_ensemble_methods(
     print(f"   Output averaging CER: {output_cer:.4f}")
 
     # 2. Equal weight averaging
-    print(f"\n⚖️  Testing equal weight averaging...")
+    print("\n⚖️  Testing equal weight averaging...")
     equal_avg_model, _ = create_weight_averaged_model(run_ids, save_averaged_model=False)
 
     # Convert to function for evaluation
@@ -343,7 +343,7 @@ def compare_ensemble_methods(
     print(f"   Equal weight averaging CER: {equal_cer:.4f}")
 
     # 3. Performance-based weight averaging
-    print(f"\n🏆 Testing performance-based weight averaging...")
+    print("\n🏆 Testing performance-based weight averaging...")
     perf_avg_model, perf_metadata = smart_weight_averaging(
         run_ids, validation_loader, 'performance', tokenizer
     )
