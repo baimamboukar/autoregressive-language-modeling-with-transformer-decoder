@@ -42,9 +42,9 @@ def ensemble_from_wandb(run_ids: list, temperature: float = 1.0, beam_width: int
         try:
             # Download model files
             print("Downloading model files...")
-            model_file = wandb.restore('best_model.pth', run_path=f"HW4P2/{run_id}")
-            config_file = wandb.restore('config.yaml', run_path=f"HW4P2/{run_id}")
-            arch_file = wandb.restore('model_arch.txt', run_path=f"HW4P2/{run_id}")
+            model_file = wandb.restore('best_model.pth', run_path=f"idlf25/HW4P2/{run_id}")
+            config_file = wandb.restore('config.yaml', run_path=f"idlf25/HW4P2/{run_id}")
+            arch_file = wandb.restore('model_arch.txt', run_path=f"idlf25/HW4P2/{run_id}")
 
             # Load config
             with open(config_file.name, 'r') as f:

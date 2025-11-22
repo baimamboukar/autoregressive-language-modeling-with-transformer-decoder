@@ -49,7 +49,7 @@ def create_weight_averaged_model(
         print(f"\n📥 Loading model {i+1}/{len(run_ids)}: {run_id}")
 
         api = wandb.Api()
-        run = api.run(f"HW4P2/{run_id}")
+        run = api.run(f"idlf25/HW4P2/{run_id}")
 
         # Create temp directory for this model
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -274,7 +274,7 @@ def get_weights_from_wandb_metrics(run_ids: List[str], metric: str = 'val_loss')
 
     for run_id in run_ids:
         try:
-            run = api.run(f"HW4P2/{run_id}")
+            run = api.run(f"idlf25/HW4P2/{run_id}")
 
             # Get the best metric value
             if metric in run.summary:
