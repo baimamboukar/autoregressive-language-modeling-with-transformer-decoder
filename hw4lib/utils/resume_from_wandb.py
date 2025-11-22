@@ -6,10 +6,28 @@ def list_wandb_run_files(run_id: str):
     api = wandb.Api()
     run = api.run(f"idlf25/HW4P2/{run_id}")
 
-    print(f"Files in run {run_id} ({run.name}):")
+    print(f"Files in run {run_id} ({run.name}) - State: {run.state}")
+    print("="*60)
     files = run.files()
+
+    # Group files by directory
+    from collections import defaultdict
+    file_structure = defaultdict(list)
+
     for f in files:
-        print(f"  - {f.name}")
+        parts = f.name.split('/')
+        if len(parts) > 1:
+            directory = '/'.join(parts[:-1])
+            filename = parts[-1]
+            file_structure[directory].append(filename)
+        else:
+            file_structure['[root]'].append(f.name)
+
+    # Print organized structure
+    for directory in sorted(file_structure.keys()):
+        print(f"\n{directory}:")
+        for filename in sorted(file_structure[directory]):
+            print(f"  - {filename}")
 
     return [f.name for f in files]
 
@@ -93,12 +111,34 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
         checkpoint_file.download(root="checkpoints", replace=True)
         print(f"Downloaded checkpoint: {checkpoint_file.name}")
 
-        # Download config
-        config_file = run.file('config.yaml')
-        config_file.download(root="run.2", replace=True)
+        # Download config - try different possible paths
+        config_file = None
+        config_paths = [
+            'run.2/config.yaml',
+            'run.1/config.yaml',
+            'experiments/run.1/config.yaml',
+            'experiments/run.2/config.yaml',
+            'config.yaml'
+        ]
 
-        # Load config
-        with open("checkpoints/config.yaml", 'r') as f:
+        for path in config_paths:
+            try:
+                config_file = run.file(path)
+                if config_file:
+                    print(f"Found config at: {path}")
+                    break
+            except:
+                continue
+
+        if not config_file:
+            raise ValueError("Could not find config.yaml file")
+
+        # Download config to checkpoints directory
+        config_file.download(root="checkpoints", replace=True)
+
+        # Load config - construct the actual path where it was downloaded
+        config_local_path = os.path.join("checkpoints", config_file.name)
+        with open(config_local_path, 'r') as f:
             config = yaml.safe_load(f)
 
         # Apply config overrides if provided
