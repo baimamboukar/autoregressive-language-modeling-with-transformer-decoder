@@ -1,4 +1,19 @@
 # Resume Training from Wandb for HW4P2
+def list_wandb_run_files(run_id: str):
+    """List all files available in a wandb run."""
+    import wandb
+
+    api = wandb.Api()
+    run = api.run(f"idlf25/HW4P2/{run_id}")
+
+    print(f"Files in run {run_id} ({run.name}):")
+    files = run.files()
+    for f in files:
+        print(f"  - {f.name}")
+
+    return [f.name for f in files]
+
+
 def resume_from_wandb(run_id: str, config_override: dict = None):
     """
     Resume training from a specific wandb run for ASR models.
@@ -49,11 +64,26 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
 
         # Try to get the last checkpoint or best model
         checkpoint_file = None
-        for name in ['checkpoint-last-epoch.pth', 'best_model.pth', checkpoint_files[-1].name]:
+        # Try different possible paths for checkpoint files
+        possible_names = [
+            'checkpoints/checkpoint-last-epoch.pth',
+            'checkpoints/best_model.pth',
+            'checkpoint-last-epoch.pth',
+            'best_model.pth',
+            'experiments/run.1/best_model.pth',
+            'experiments/run.1/checkpoints/best_model.pth'
+        ]
+
+        # Add any found checkpoint files to the list
+        if checkpoint_files:
+            possible_names.extend([f.name for f in checkpoint_files])
+
+        for name in possible_names:
             try:
                 file = run.file(name)
                 if file:
                     checkpoint_file = file
+                    print(f"Found checkpoint at: {name}")
                     break
             except:
                 continue
