@@ -32,7 +32,7 @@ def list_wandb_run_files(run_id: str):
     return [f.name for f in files]
 
 
-def resume_from_wandb(run_id: str, config_override: dict = None):
+def resume_from_wandb(run_id: str, config_override: dict = None, checkpoint_type: str = "best"):
     """
     Resume training from a specific wandb run for ASR models.
     Downloads the latest checkpoint and continues training from where it stopped.
@@ -40,6 +40,7 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
     Args:
         run_id: Wandb run ID to resume from
         config_override: Optional dict to override specific config values (e.g., epochs, lr)
+        checkpoint_type: "best" or "last" to specify which checkpoint to load
 
     Returns:
         model: Loaded EncoderDecoderTransformer model
@@ -80,14 +81,24 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
         # Sort by name to get the latest (assuming naming like checkpoint_epoch_20.pth)
         checkpoint_files.sort(key=lambda x: x.name)
 
-        # Try to get the last checkpoint or best model
+        # Try to get the last checkpoint or best model based on checkpoint_type
         checkpoint_file = None
-        # Try different possible paths for checkpoint files
-        possible_names = [
-            'checkpoints/checkpoint-last-epoch-model.pth',
-            'checkpoints/checkpoint-best-metric-model.pth',
-            'checkpoint-last-epoch.pth',
-        ]
+
+        # Prioritize based on checkpoint_type
+        if checkpoint_type == "best":
+            possible_names = [
+                'checkpoints/checkpoint-best-metric-model.pth',
+                'checkpoints/best_model.pth',
+                'best_model.pth',
+                'checkpoints/checkpoint-last-epoch-model.pth',  # Fallback to last if best not found
+            ]
+        else:  # checkpoint_type == "last"
+            possible_names = [
+                'checkpoints/checkpoint-last-epoch-model.pth',
+                'checkpoints/last_model.pth',
+                'checkpoint-last-epoch.pth',
+                'checkpoints/checkpoint-best-metric-model.pth',  # Fallback to best if last not found
+            ]
 
         # Add any found checkpoint files to the list
         if checkpoint_files:
@@ -222,8 +233,15 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
 
         # Load optimizer state if available
         if 'optimizer_state_dict' in checkpoint:
-            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            print("Optimizer state loaded")
+            try:
+                optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+                print("Optimizer state loaded")
+            except ValueError as e:
+                if "different number of parameter groups" in str(e):
+                    print(f"Warning: Could not load optimizer state - {e}")
+                    print("Using fresh optimizer state instead")
+                else:
+                    raise
         else:
             print("Warning: No optimizer state found, using fresh optimizer")
 
@@ -278,7 +296,8 @@ def resume_and_continue_training(
     train_loader,
     val_loader,
     num_additional_epochs: int = 10,
-    config_override: dict = None
+    config_override: dict = None,
+    checkpoint_type: str = "best"
 ):
     """
     Resume from wandb and continue training for additional epochs.
@@ -289,6 +308,7 @@ def resume_and_continue_training(
         val_loader: Validation dataloader
         num_additional_epochs: Number of additional epochs to train
         config_override: Optional config overrides
+        checkpoint_type: "best" or "last" to specify which checkpoint to load
 
     Returns:
         model: Trained model
@@ -301,7 +321,8 @@ def resume_and_continue_training(
     # Resume from wandb
     model, optimizer, scheduler, start_epoch, config, tokenizer = resume_from_wandb(
         run_id,
-        config_override
+        config_override,
+        checkpoint_type
     )
 
     # Calculate total epochs
