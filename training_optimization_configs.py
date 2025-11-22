@@ -1,7 +1,7 @@
 # Training Optimization Configurations for Maximum Performance
 import yaml
 import os
-from typing import Dict, List
+from typing import Dict
 import copy
 
 def create_optimization_configs():
@@ -540,17 +540,17 @@ if __name__ == "__main__":
     for name, config in configs.items():
         print(f"  ✅ {name}: {config['Name']}")
 
-    print(f"\n📋 Training schedule saved to: training_schedule.yaml")
-    print(f"📂 All configs saved to: optimization_configs/")
+    print("\n📋 Training schedule saved to: training_schedule.yaml")
+    print("📂 All configs saved to: optimization_configs/")
 
-    print(f"\n🚀 Quick start recommendations:")
-    print(f"  1. Fast iteration: config_quick_wins.yaml")
-    print(f"  2. Best balance: config_fast_convergence.yaml")
-    print(f"  3. Maximum quality: config_high_performance.yaml")
-    print(f"  4. Most stable: config_stable_training.yaml")
+    print("\n🚀 Quick start recommendations:")
+    print("  1. Fast iteration: config_quick_wins.yaml")
+    print("  2. Best balance: config_fast_convergence.yaml")
+    print("  3. Maximum quality: config_high_performance.yaml")
+    print("  4. Most stable: config_stable_training.yaml")
 
-    print(f"\n🎯 Strategic approach:")
-    print(f"  1. Start with quick_wins for rapid prototyping")
-    print(f"  2. Train 3-4 variants in parallel")
-    print(f"  3. Fine-tune best models")
-    print(f"  4. Create ensemble for CER < 6%")
+    print("\n🎯 Strategic approach:")
+    print("  1. Start with quick_wins for rapid prototyping")
+    print("  2. Train 3-4 variants in parallel")
+    print("  3. Fine-tune best models")
+    print("  4. Create ensemble for CER < 6%")

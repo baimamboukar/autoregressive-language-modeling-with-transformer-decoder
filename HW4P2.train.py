@@ -621,6 +621,42 @@ trainer.train(train_loader, val_loader, epochs=25)
 We'll evaluate with multiple beam search configurations to find the optimal CER performance.
 """
 
+def evaluate_fast_greedy(trainer, test_loader, max_transcript_len):
+    """Fast evaluation using only greedy search for training speed"""
+
+    greedy_config = {
+        'num_batches': None,
+        'beam_width': 1,
+        'temperature': 1.0,
+        'repeat_penalty': 1.0
+    }
+
+    print("Fast evaluation with greedy search...")
+    results = trainer.recognize(
+        test_loader,
+        greedy_config,
+        config_name='greedy',
+        max_length=max_transcript_len
+    )
+
+    # Calculate metrics if references available
+    if results and 'reference' in results[0]:
+        references = [r['reference'] for r in results]
+        hypotheses = [r['hypothesis'] for r in results]
+
+        metrics = trainer._calculate_asr_metrics(references, hypotheses)
+        cer = metrics['cer']
+        wer = metrics['wer']
+
+        print(f"Greedy CER: {cer:.2f}%")
+        print(f"Greedy WER: {wer:.2f}%")
+
+        wandb.log({"greedy_cer": cer, "greedy_wer": wer})
+        return results, cer
+    else:
+        print("Test set - no CER calculation available")
+        return results, None
+
 def evaluate_with_beam_search_configs(trainer, test_loader, max_transcript_len):
     """Evaluate model with multiple beam search configurations"""
 
@@ -718,13 +754,23 @@ def evaluate_with_beam_search_configs(trainer, test_loader, max_transcript_len):
 
     return all_results, best_config
 
-# Evaluate on validation set first to find best configuration
-print("\nEVALUATING ON VALIDATION SET:")
-val_results, best_config_val = evaluate_with_beam_search_configs(trainer, val_loader, max_transcript_len)
+# Fast evaluation during training - use only greedy search for speed
+print("\nFAST EVALUATION ON VALIDATION SET:")
+val_results, val_cer = evaluate_fast_greedy(trainer, val_loader, max_transcript_len)
 
-# Evaluate on test set with all configurations
-print("\nEVALUATING ON TEST SET:")
-test_results, _ = evaluate_with_beam_search_configs(trainer, test_loader, max_transcript_len)
+print("\nFAST EVALUATION ON TEST SET:")
+test_results, test_cer = evaluate_fast_greedy(trainer, test_loader, max_transcript_len)
+
+# OPTIONAL: For final submission, you can uncomment these lines to run full beam search evaluation
+# This will take much longer but may give better CER results
+print("\n" + "="*80)
+print("OPTIONAL: Uncomment the lines below for comprehensive beam search evaluation")
+print("This will take significantly longer but may improve CER performance")
+print("="*80)
+# print("\nCOMPREHENSIVE BEAM SEARCH EVALUATION ON VALIDATION SET:")
+# val_beam_results, best_config_val = evaluate_with_beam_search_configs(trainer, val_loader, max_transcript_len)
+# print("\nCOMPREHENSIVE BEAM SEARCH EVALUATION ON TEST SET:")
+# test_beam_results, _ = evaluate_with_beam_search_configs(trainer, test_loader, max_transcript_len)
 
 # Use the best configuration from validation set for final submission
 if best_config_val and best_config_val in test_results:

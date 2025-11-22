@@ -1,9 +1,8 @@
 # Smart Training Workflow for HW4P2 - CER < 6% Strategy
 import os
 import yaml
-import wandb
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List
 
 def train_model_variant(config_path: str, epochs: int = 25, experiment_name: str = None) -> str:
     """
@@ -253,7 +252,7 @@ def smart_training_pipeline():
         print(f"  {i+1}. {run_id}")
 
     # Step 3: Fine-tune best models
-    print(f"\n🔧 Step 2: Fine-tuning top models...")
+    print("\n🔧 Step 2: Fine-tuning top models...")
     finetuned_run_ids = finetune_best_models(
         run_ids=base_run_ids,
         additional_epochs=10,
@@ -265,7 +264,7 @@ def smart_training_pipeline():
     # Step 4: Combine all run IDs for ensemble
     all_run_ids = base_run_ids + finetuned_run_ids
 
-    print(f"\n🎯 Pipeline Complete!")
+    print("\n🎯 Pipeline Complete!")
     print(f"Total models trained: {len(all_run_ids)}")
     print(f"Ready for ensemble: {all_run_ids}")
 
@@ -279,10 +278,10 @@ def smart_training_pipeline():
         for run_id in finetuned_run_ids:
             f.write(f"{run_id}\n")
 
-    print(f"💾 Run IDs saved to: trained_models_run_ids.txt")
+    print("💾 Run IDs saved to: trained_models_run_ids.txt")
 
     # Step 5: Create ensemble
-    print(f"\n🤝 Creating ensemble...")
+    print("\n🤝 Creating ensemble...")
     from ensemble_asr import ensemble_from_wandb
 
     try:
@@ -293,15 +292,15 @@ def smart_training_pipeline():
             temperature=0.9
         )
 
-        print(f"✅ Ensemble created successfully!")
-        print(f"📈 Ready for validation and final testing")
+        print("✅ Ensemble created successfully!")
+        print("📈 Ready for validation and final testing")
 
         return ensemble_model, all_run_ids
 
     except Exception as e:
         print(f"❌ Ensemble creation failed: {e}")
-        print(f"💡 Manual ensemble creation:")
-        print(f"   from ensemble_asr import ensemble_from_wandb")
+        print("💡 Manual ensemble creation:")
+        print("   from ensemble_asr import ensemble_from_wandb")
         print(f"   ensemble = ensemble_from_wandb({all_run_ids})")
 
         return None, all_run_ids
@@ -330,7 +329,7 @@ def parallel_training_setup():
     for i, config in enumerate(configs):
         print(f"# GPU {i}")
         print(f"CUDA_VISIBLE_DEVICES={i} python -c \"")
-        print(f"from smart_training_workflow import train_model_variant")
+        print("from smart_training_workflow import train_model_variant")
         print(f"train_model_variant('{config}', epochs=25)\"")
         print()
 

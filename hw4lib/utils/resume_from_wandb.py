@@ -375,7 +375,7 @@ def resume_and_continue_training(
     # Use the trainer's train method with dataloaders
     trainer.train(train_loader, val_loader, num_additional_epochs)
 
-    print(f"\nTraining completed!")
+    print("\nTraining completed!")
 
     wandb.finish()
 
