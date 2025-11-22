@@ -342,57 +342,27 @@ def resume_and_continue_training(
     # Create trainer
     trainer = ASRTrainer(
         model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        optimizer=optimizer,
-        scheduler=scheduler,
+        tokenizer=tokenizer,
         config=config,
-        device='cuda' if torch.cuda.is_available() else 'cpu',
-        exp_dir=f"experiments/{config['Name']}_resumed"
+        run_name=f"{config['Name']}_resumed_epoch_{start_epoch}",
+        config_file="config.yaml",
+        device='cuda' if torch.cuda.is_available() else 'cpu'
     )
+
+    # Set optimizer and scheduler
+    trainer.optimizer = optimizer
+    trainer.scheduler = scheduler
 
     # Set starting epoch
     trainer.current_epoch = start_epoch
 
     # Train for additional epochs
     print(f"\nTraining for {num_additional_epochs} additional epochs...")
-    for epoch in range(start_epoch, total_epochs):
-        trainer.current_epoch = epoch
 
-        # Train epoch
-        train_loss, train_cer = trainer.train_epoch()
+    # Use the trainer's train method with dataloaders
+    trainer.train(train_loader, val_loader, num_additional_epochs)
 
-        # Validate epoch
-        val_loss, val_cer = trainer.valid_epoch()
-
-        print(f"Epoch {epoch}/{total_epochs}")
-        print(f"  Train - Loss: {train_loss:.4f}, CER: {train_cer:.4f}")
-        print(f"  Val   - Loss: {val_loss:.4f}, CER: {val_cer:.4f}")
-
-        # Log to wandb
-        wandb.log({
-            'epoch': epoch,
-            'train_loss': train_loss,
-            'train_cer': train_cer,
-            'val_loss': val_loss,
-            'val_cer': val_cer,
-            'learning_rate': optimizer.param_groups[0]['lr']
-        })
-
-        # Step scheduler
-        if scheduler:
-            scheduler.step()
-
-        # Save checkpoint
-        if val_cer < trainer.best_cer:
-            trainer.best_cer = val_cer
-            trainer.save_checkpoint(epoch, val_cer, is_best=True)
-            print(f"  New best model! CER: {val_cer:.4f}")
-
-    print(f"\nTraining completed! Final best CER: {trainer.best_cer:.4f}")
-
-    # Save final model
-    trainer.save_checkpoint(total_epochs - 1, trainer.best_cer, is_best=False)
+    print(f"\nTraining completed!")
 
     wandb.finish()
 
