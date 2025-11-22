@@ -95,7 +95,7 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
 
         # Download config
         config_file = run.file('config.yaml')
-        config_file.download(root="checkpoints", replace=True)
+        config_file.download(root="run.2", replace=True)
 
         # Load config
         with open("checkpoints/config.yaml", 'r') as f:
