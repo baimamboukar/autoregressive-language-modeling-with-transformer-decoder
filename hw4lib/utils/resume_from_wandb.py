@@ -351,7 +351,20 @@ def resume_and_continue_training(
 
     # Set optimizer and scheduler
     trainer.optimizer = optimizer
-    trainer.scheduler = scheduler
+
+    # Create fresh scheduler if needed
+    if scheduler is None:
+        from hw4lib.utils import create_scheduler
+        trainer.scheduler = create_scheduler(
+            optimizer=optimizer,
+            scheduler_config=config['scheduler'],
+            train_loader=train_loader,
+            gradient_accumulation_steps=config['training']['gradient_accumulation_steps']
+        )
+        print("Created fresh scheduler")
+    else:
+        trainer.scheduler = scheduler
+        print("Using loaded scheduler")
 
     # Set starting epoch
     trainer.current_epoch = start_epoch
