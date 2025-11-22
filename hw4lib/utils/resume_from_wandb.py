@@ -66,12 +66,9 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
         checkpoint_file = None
         # Try different possible paths for checkpoint files
         possible_names = [
-            'checkpoints/checkpoint-last-epoch.pth',
-            'checkpoints/best_model.pth',
+            'checkpoints/checkpoint-last-epoch-model.pth',
+            'checkpoints/checkpoint-best-metric-model.pth',
             'checkpoint-last-epoch.pth',
-            'best_model.pth',
-            'experiments/run.1/best_model.pth',
-            'experiments/run.1/checkpoints/best_model.pth'
         ]
 
         # Add any found checkpoint files to the list
