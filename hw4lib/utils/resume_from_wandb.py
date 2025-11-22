@@ -160,19 +160,34 @@ def resume_from_wandb(run_id: str, config_override: dict = None):
         tokenizer = H4Tokenizer(token_map, token_type)
         print(f"Tokenizer loaded: {token_type} ({tokenizer.vocab_size} tokens)")
 
-        # Create model
+        # Load checkpoint first to inspect the model architecture
+        checkpoint = torch.load(local_checkpoint_path, map_location='cpu')
+
+        # Extract the correct max_len from the saved positional encoding shape
+        if 'model_state_dict' in checkpoint:
+            # Look for positional encoding tensor to get the correct max_len
+            pe_key = 'positional_encoding.pe'
+            if pe_key in checkpoint['model_state_dict']:
+                pe_shape = checkpoint['model_state_dict'][pe_key].shape
+                actual_max_len = pe_shape[1]  # Shape is [1, max_len, d_model]
+                print(f"Detected max_len from checkpoint: {actual_max_len}")
+            else:
+                actual_max_len = 1024  # Fallback to default
+                print(f"Could not detect max_len, using default: {actual_max_len}")
+        else:
+            actual_max_len = 1024
+
+        # Create model with correct architecture
         model_config = config['model'].copy()
         model_config['num_classes'] = tokenizer.vocab_size
-        model_config['max_len'] = 1024  # Default max length
+        model_config['max_len'] = actual_max_len  # Use the correct max_len from checkpoint
 
         print(f"Creating model: d_model={model_config['d_model']}, "
               f"enc_layers={model_config['num_encoder_layers']}, "
-              f"dec_layers={model_config['num_decoder_layers']}")
+              f"dec_layers={model_config['num_decoder_layers']}, "
+              f"max_len={model_config['max_len']}")
 
         model = EncoderDecoderTransformer(**model_config)
-
-        # Load checkpoint
-        checkpoint = torch.load(local_checkpoint_path, map_location='cpu')
 
         # Load model state
         model.load_state_dict(checkpoint['model_state_dict'])
