@@ -123,7 +123,7 @@ def main():
     '''
     Main function to run the tests.
     '''
-    from hw4lib.model import SelfAttentionDecoderLayer
+    from lib.model import SelfAttentionDecoderLayer
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(

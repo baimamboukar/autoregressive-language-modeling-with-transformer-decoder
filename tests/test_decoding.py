@@ -316,8 +316,8 @@ def test_decoding(generator, tokenizer):
 
 def main():
     """Main function to run the tests"""
-    from hw4lib.decoding import SequenceGenerator
-    from hw4lib.data import H4Tokenizer
+    from lib.decoding import SequenceGenerator
+    from lib.data import H4Tokenizer
     from tests.testing_framework import TestingFramework
 
     # Add argument parsing
@@ -330,10 +330,10 @@ def main():
         'tokenization': {
             'token_type': "1k",       # [char, 1k, 5k, 10k]
             'token_map': {
-                'char': './hw4lib/data/tokenizer_jsons/tokenizer_char.json',
-                '1k'  : './hw4lib/data/tokenizer_jsons/tokenizer_1000.json',  
-                '5k'  : './hw4lib/data/tokenizer_jsons/tokenizer_5000.json',
-                '10k' : './hw4lib/data/tokenizer_jsons/tokenizer_10000.json'
+                'char': './lib/data/tokenizer_jsons/tokenizer_char.json',
+                '1k'  : './lib/data/tokenizer_jsons/tokenizer_1000.json',  
+                '5k'  : './lib/data/tokenizer_jsons/tokenizer_5000.json',
+                '10k' : './lib/data/tokenizer_jsons/tokenizer_10000.json'
             }
         },
     }

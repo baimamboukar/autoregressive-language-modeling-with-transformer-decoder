@@ -69,7 +69,7 @@ def main():
     """
     Main function to run the positional encoding tests using the testing framework.
     """
-    from hw4lib.model import PositionalEncoding
+    from lib.model import PositionalEncoding
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(

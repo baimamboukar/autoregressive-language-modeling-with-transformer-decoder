@@ -192,7 +192,7 @@ def main():
     '''
     Main function to run the tests
     '''
-    from hw4lib.model import DecoderOnlyTransformer
+    from lib.model import DecoderOnlyTransformer
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(

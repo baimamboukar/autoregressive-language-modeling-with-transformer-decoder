@@ -191,7 +191,7 @@ def test_self_attention_residual(self_attn):
     print("Test Passed: Residual connection is applied correctly")
 
 def main():
-    from hw4lib.model import SelfAttentionLayer
+    from lib.model import SelfAttentionLayer
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(

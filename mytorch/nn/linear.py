@@ -7,7 +7,7 @@ class Linear:
         W shape: (out_features, in_features)
         b shape: (out_features,)  # Changed from (out_features, 1) to match PyTorch
         """
-        # DO NOT MODIFY
+
         self.W = np.zeros((out_features, in_features))
         self.b = np.zeros(out_features)
 
@@ -16,7 +16,7 @@ class Linear:
         """
         Initialize the weights and biases with the given values.
         """
-        # DO NOT MODIFY
+
         self.W = W
         self.b = b
 

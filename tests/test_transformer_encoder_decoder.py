@@ -1,5 +1,5 @@
 import torch
-from hw4lib.model import PadMask
+from lib.model import PadMask
 def test_encoder_decoder_transformer(transformer):
     '''
     Test the EncoderDecoderTransformer implementation.
@@ -484,7 +484,7 @@ def main():
     '''
     Main function to run the tests
     '''
-    from hw4lib.model import EncoderDecoderTransformer
+    from lib.model import EncoderDecoderTransformer
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(

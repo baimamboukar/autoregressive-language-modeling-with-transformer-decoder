@@ -169,7 +169,7 @@ def main():
     '''
     Main function to run the tests.
     '''
-    from hw4lib.model import SelfAttentionEncoderLayer
+    from lib.model import SelfAttentionEncoderLayer
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(

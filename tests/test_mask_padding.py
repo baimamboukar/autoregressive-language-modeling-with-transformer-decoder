@@ -60,7 +60,7 @@ def main():
     """
     Main function to run the padding mask tests using the testing framework.
     """
-    from hw4lib.model.masks import PadMask
+    from lib.model.masks import PadMask
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(

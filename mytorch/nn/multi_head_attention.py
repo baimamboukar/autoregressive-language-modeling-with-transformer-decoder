@@ -15,7 +15,7 @@ class MultiHeadAttention:
             raise ValueError("embed_dim must be divisible by num_heads")
 
         # Initialize parameters and layers
-        # DO NOT MODIFY
+
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         
@@ -33,7 +33,7 @@ class MultiHeadAttention:
         """
         Initialize the weights and biases with the given values.
         """
-        # Initialize your linear layers (DO NOT MODIFY)
+        # Initialize your linear layers
         self.q_proj.init_weights(Wq, bq)
         self.k_proj.init_weights(Wk, bk)
         self.v_proj.init_weights(Wv, bv)

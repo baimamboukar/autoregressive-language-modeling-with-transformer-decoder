@@ -151,21 +151,21 @@ def main():
     """
     Main function to run the dataset tests using the testing framework.
     """
-    from hw4lib.data import ASRDataset, H4Tokenizer
+    from lib.data import ASRDataset, H4Tokenizer
     from tests.testing_framework import TestingFramework
 
     dummy_config = {
         'tokenization': {
             'token_type': "1k",
             'token_map': {
-                'char': './hw4lib/data/tokenizer_jsons/tokenizer_char.json',
-                '1k': './hw4lib/data/tokenizer_jsons/tokenizer_1000.json',
-                '5k': './hw4lib/data/tokenizer_jsons/tokenizer_5000.json',
-                '10k': './hw4lib/data/tokenizer_jsons/tokenizer_10000.json'
+                'char': './lib/data/tokenizer_jsons/tokenizer_char.json',
+                '1k': './lib/data/tokenizer_jsons/tokenizer_1000.json',
+                '5k': './lib/data/tokenizer_jsons/tokenizer_5000.json',
+                '10k': './lib/data/tokenizer_jsons/tokenizer_10000.json'
             }
         },
         'data': {
-            'root': "./hw4_data_subset/hw4p2_data",
+            'root': "./data_subset/P2.data",
             'subset': 1.0,
             'batch_size': 8,
             'NUM_WORKERS': 2,

@@ -205,7 +205,7 @@ def test_cross_attention_residual(cross_attention):
 
 
 def main():
-    from hw4lib.model import CrossAttentionLayer
+    from lib.model import CrossAttentionLayer
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(

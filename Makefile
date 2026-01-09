@@ -1,4 +1,4 @@
-.PHONY: test test-hw4p1 test-mytorch test-model test-all test-hw4p2
+.PHONY: test test-p1 test-mytorch test-model test-all test-p2
 
 test:
 	@PYTHONPATH=. python3 -W ignore tests/test_mytorch_linear.py

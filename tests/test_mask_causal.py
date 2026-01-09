@@ -56,7 +56,7 @@ def main():
     """
     Main function to run the causal mask tests using the testing framework.
     """
-    from hw4lib.model.masks import CausalMask
+    from lib.model.masks import CausalMask
     from tests.testing_framework import TestingFramework
 
     framework = TestingFramework(
