@@ -1,8 +1,18 @@
 # Autoregressive Language Modeling with a Causal Transformer Decoder
 
-This project implements a comprehensive deep learning codebase for sequence modeling, featuring an **Autoregressive Decoder-only Transformer** for causal language modeling and an **Encoder-Decoder Transformer** for Automatic Speech Recognition (ASR). Built from the ground up using PyTorch and a custom `mytorch` library, the system provides an end-to-end pipeline for training, evaluation, and efficient decoding, demonstrating the core mechanics of modern large language models (LLMs) and speech processing systems.
+_This project implements a comprehensive deep learning codebase for sequence modeling, featuring an **Autoregressive Decoder-only Transformer** for causal language modeling and an **Encoder-Decoder Transformer** for Automatic Speech Recognition (ASR). Built from the ground up using PyTorch and a custom `mytorch` library, the system provides an end-to-end pipeline for training, evaluation, and efficient decoding, demonstrating the core mechanics of modern large language models (LLMs) and speech processing systems._
 
-## Project Overview
+
+## Tools and Technologies
+
+<p align="left">
+  <a>
+    <img src="https://skillicons.dev/icons?i=pytorch,python,github,githubactions,markdown,bash,stackoverflow&perline=19" alt="Skill Icons">
+  </a>
+  </p>
+
+
+## Overview
 
 * **Purpose:** The primary objective of this project is to implement, train, and optimize Transformer-based architectures from scratch. It aims to bridge the gap between theoretical understanding and practical implementation of self-attention mechanisms, positional encodings, and sequence generation strategies.
 * **Model:**
@@ -21,6 +31,3 @@ This project implements a comprehensive deep learning codebase for sequence mode
   * **Perplexity (PPL):** Used to evaluate the Autoregressive Language Model (P1).
   * **Character Error Rate (CER):** The primary metric for evaluating ASR performance (P2).
   * **Word Error Rate (WER):** Secondary metric for speech transcription accuracy.
-* **Datasets:**
-
-  * **WSJ / LibriSpeech Subsets:** The project uses specific subsets of standard speech and text corpora, located in the `data_subset/` directory (`P1.data` for LM, `P2.data` for ASR).
