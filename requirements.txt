@@ -84,3 +84,4 @@ wandb==0.19.2
 wcwidth 
 wheel==0.44.0
 zipp 
+forbiddenfruit
