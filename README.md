@@ -1,6 +1,6 @@
 # Autoregressive Language Modeling with a Causal Transformer Decoder
 
-_This project implements a comprehensive deep learning codebase for sequence modeling, featuring an **Autoregressive Decoder-only Transformer** for causal language modeling and an **Encoder-Decoder Transformer** for Automatic Speech Recognition (ASR). Built from the ground up using PyTorch and a custom `mytorch` library, the system provides an end-to-end pipeline for training, evaluation, and efficient decoding, demonstrating the core mechanics of modern large language models (LLMs) and speech processing systems._
+_This project implements a comprehensive deep learning codebase for sequence modeling, featuring an **Autoregressive Decoder-only Transformer** for causal language modeling and an **Encoder-Decoder Transformer** for Automatic Speech Recognition (ASR). Built from the ground up using PyTorch and a custom `mytorch` library, the system provides an end-to-end pipeline for training, evaluation, and efficient decoding._
 
 
 ## Tools and Technologies
